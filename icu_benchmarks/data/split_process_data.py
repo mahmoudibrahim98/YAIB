@@ -71,9 +71,9 @@ def preprocess_data(
     cache_dir = data_dir / "cache"
     check_required_keys(vars, required_var_types)
     check_required_keys(file_names, required_segments)
-    if not use_static:
-        file_names.pop(Segment.static)
-        vars.pop(Segment.static)
+    # if not use_static:
+    #     file_names.pop(Segment.static)
+    #     vars.pop(Segment.static)
     if isinstance(vars[Var.label], list) and len(vars[Var.label]) > 1:
         if label is not None:
             vars[Var.label] = [label]
@@ -139,23 +139,23 @@ def preprocess_data(
 
     # Generate the splits
     logging.info("Generating splits.")
-    # complete_train = True
-    if not complete_train:
-        data = make_single_split(
-            data,
-            vars,
-            cv_repetitions,
-            repetition_index,
-            cv_folds,
-            fold_index,
-            train_size=train_size,
-            seed=seed,
-            debug=debug,
-            runmode=runmode,
-        )
-    else:
-        # If full train is set, we use all data for training/validation
-        data = make_train_val(data, vars, train_size=None, seed=seed, debug=debug, runmode=runmode)
+    ## complete_train = True
+    # if not complete_train:
+    #     data = make_single_split(
+    #         data,
+    #         vars,
+    #         cv_repetitions,
+    #         repetition_index,
+    #         cv_folds,
+    #         fold_index,
+    #         train_size=train_size,
+    #         seed=seed,
+    #         debug=debug,
+    #         runmode=runmode,
+    #     )
+    # else:
+    #     # If full train is set, we use all data for training/validation
+    #     data = make_train_val(data, vars, train_size=None, seed=seed, debug=debug, runmode=runmode)
 
     # Apply preprocessing
 
@@ -164,22 +164,22 @@ def preprocess_data(
     end = timer()
     logging.info(f"Preprocessing took {end - start:.2f} seconds.")
     logging.info(f"Checking for NaNs and nulls in {data.keys()}.")
-    for dict in data.values():
-        for key, val in dict.items():
-            logging.debug(f"Data type: {key}")
-            logging.debug("Is NaN:")
-            sel = dict[key].select(pl.selectors.numeric().is_nan().max())
-            logging.debug(sel.select(col.name for col in sel if col.item(0)))
-            # logging.info(dict[key].select(pl.all().has_nulls()).sum_horizontal())
-            logging.debug("Has nulls:")
-            sel = dict[key].select(pl.all().has_nulls())
-            logging.debug(sel.select(col.name for col in sel if col.item(0)))
-            # dict[key] = val[:, [not (s.null_count() > 0) for s in val]]
-            dict[key] = val.fill_null(strategy="zero")
-            dict[key] = val.fill_nan(0)
-            logging.debug("Dropping columns with nulls")
-            sel = dict[key].select(pl.all().has_nulls())
-            logging.debug(sel.select(col.name for col in sel if col.item(0)))
+    # for dict in data.values():
+    #     for key, val in dict.items():
+    #         logging.debug(f"Data type: {key}")
+    #         logging.debug("Is NaN:")
+    #         sel = dict[key].select(pl.selectors.numeric().is_nan().max())
+    #         logging.debug(sel.select(col.name for col in sel if col.item(0)))
+    #         # logging.info(dict[key].select(pl.all().has_nulls()).sum_horizontal())
+    #         logging.debug("Has nulls:")
+    #         sel = dict[key].select(pl.all().has_nulls())
+    #         logging.debug(sel.select(col.name for col in sel if col.item(0)))
+    #         # dict[key] = val[:, [not (s.null_count() > 0) for s in val]]
+    #         dict[key] = val.fill_null(strategy="zero")
+    #         dict[key] = val.fill_nan(0)
+    #         logging.debug("Dropping columns with nulls")
+    #         sel = dict[key].select(pl.all().has_nulls())
+    #         logging.debug(sel.select(col.name for col in sel if col.item(0)))
 
     # Generate cache
     if generate_cache:

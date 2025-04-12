@@ -587,6 +587,8 @@ def make_train_val_test(
             data_split[fold] = {
                 data_type: data[data_type].merge(split[fold], on=id, how="right", sort=True) for data_type in data.keys()
             }
+            
+            
 
     # Maintain compatibility with test split
     if test_stay_ids:
