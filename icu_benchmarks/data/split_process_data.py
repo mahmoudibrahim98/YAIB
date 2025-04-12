@@ -200,11 +200,13 @@ def check_sanitize_data(data, vars):
     if Segment.static in data.keys():
         old_len = len(data[Segment.static])
         data[Segment.static] = data[Segment.static].unique(subset=group, keep=keep, maintain_order=True)
-        logging.warning(f"Removed {old_len - len(data[Segment.static])} duplicates from static data.")
+        if old_len != len(data[Segment.static]):
+            logging.warning(f"Removed {old_len - len(data[Segment.static])} duplicates from static data.")
     if Segment.dynamic in data.keys():
         old_len = len(data[Segment.dynamic])
         data[Segment.dynamic] = data[Segment.dynamic].unique(subset=[group, sequence], keep=keep, maintain_order=True)
-        logging.warning(f"Removed {old_len - len(data[Segment.dynamic])} duplicates from dynamic data.")
+        if old_len != len(data[Segment.dynamic]):
+            logging.warning(f"Removed {old_len - len(data[Segment.dynamic])} duplicates from dynamic data.")
     if Segment.outcome in data.keys():
         old_len = len(data[Segment.outcome])
         if sequence in data[Segment.outcome].columns:
@@ -212,7 +214,8 @@ def check_sanitize_data(data, vars):
             data[Segment.outcome] = data[Segment.outcome].unique(subset=[group, sequence], keep=keep, maintain_order=True)
         else:
             data[Segment.outcome] = data[Segment.outcome].unique(subset=[group], keep=keep, maintain_order=True)
-        logging.warning(f"Removed {old_len - len(data[Segment.outcome])} duplicates from outcome data.")
+        if old_len != len(data[Segment.outcome]):
+            logging.warning(f"Removed {old_len - len(data[Segment.outcome])} duplicates from outcome data.")
     return data
 
 
@@ -459,7 +462,7 @@ def make_single_split(
             data_split[fold] = {
                 data_type: data[data_type].merge(split[fold], on=id, how="right", sort=True) for data_type in data.keys()
             }
-    logging.info(f"Data split: {data_split}")
+    logging.debug(f"Data split: {data_split}")
     return data_split
 
 
